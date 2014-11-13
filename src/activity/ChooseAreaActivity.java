@@ -15,7 +15,10 @@ import db.DingWeatherDB;
 import db.Province;
 import android.app.Activity;
 import android.app.ProgressDialog;
+import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.text.TextUtils;
 import android.view.Window;
 import android.view.View;
@@ -53,6 +56,14 @@ public class ChooseAreaActivity extends Activity {
 	@Override
 	public void onCreate(Bundle savedInstanceState){
 		super.onCreate(savedInstanceState);
+		
+		SharedPreferences pref=PreferenceManager.getDefaultSharedPreferences(this);
+		if(pref.getBoolean("city_selected", false)){
+			Intent intent=new Intent(this, WeatherActivity.class);
+			startActivity(intent);
+			finish();
+		}
+		
 		requestWindowFeature(Window.FEATURE_NO_TITLE);
 		setContentView(R.layout.choose_area);//编写代码时提示Error，编译时有可能出错，注意！
 		titleText=(TextView)findViewById(R.id.tv_title_text);
@@ -69,6 +80,12 @@ public class ChooseAreaActivity extends Activity {
 				}else if(currentLevel==CITY_LEVEL){
 					selectedCity=cityList.get(position);
 					queryCounties();
+				}else if(currentLevel==COUNTY_LEVEL){
+					String countyCode=countyList.get(position).getCountyCode();
+					Intent intent=new Intent(ChooseAreaActivity.this, WeatherActivity.class);
+					intent.putExtra("county_code", countyCode);
+					startActivity(intent);
+					finish();
 				}
 			}
 		});
