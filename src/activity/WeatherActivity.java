@@ -6,18 +6,23 @@ import util.HttpCallBackListener;
 import util.HttpUtils;
 import util.Utility;
 import android.app.Activity;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.text.TextUtils;
 import android.view.View;
+import android.view.View.OnClickListener;
 import android.view.Window;
+import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 //import android.widget.Toast;
 
-public class WeatherActivity extends Activity {
+public class WeatherActivity extends Activity implements OnClickListener{
 
+	private Button backToChoose;
+	private Button refreshData;
 	private TextView cityNameText;
 	private TextView publishTimeText;
 	private LinearLayout weatherInfoLayout;
@@ -32,6 +37,8 @@ public class WeatherActivity extends Activity {
 		requestWindowFeature(Window.FEATURE_NO_TITLE);
 		setContentView(R.layout.wether_layout);
 		
+		backToChoose=(Button)findViewById(R.id.bt_back_to_choose);
+		refreshData=(Button)findViewById(R.id.bt_refresh);
 		cityNameText=(TextView)findViewById(R.id.tv_city_name);
 		publishTimeText=(TextView)findViewById(R.id.tv_publish_text);
 		weatherInfoLayout=(LinearLayout)findViewById(R.id.lv_weatherinfo_layout);
@@ -48,6 +55,31 @@ public class WeatherActivity extends Activity {
 			queryWeatherCode(selectedCounty);
 		}else{
 			showWeather();
+		}
+		
+		backToChoose.setOnClickListener(this);
+		refreshData.setOnClickListener(this);
+	}
+	
+	@Override
+	public void onClick(View v){
+		switch(v.getId()){
+		case R.id.bt_back_to_choose:
+			Intent intent=new Intent(this, ChooseAreaActivity.class);
+			intent.putExtra("is_from_weatheractivity", true);
+			startActivity(intent);
+			finish();
+			break;
+		case R.id.bt_refresh:
+			publishTimeText.setText("Í¬²½ÖÐ¡£¡£¡£");
+			SharedPreferences pref=PreferenceManager.getDefaultSharedPreferences(this);
+			String weatherCode=pref.getString("cityId", "");
+			if(!TextUtils.isEmpty(weatherCode)){
+				queryWeatherInfo(weatherCode);
+			}
+			break;
+		default:
+			break;
 		}
 	}
 	
