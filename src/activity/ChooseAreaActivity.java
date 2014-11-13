@@ -227,7 +227,6 @@ public class ChooseAreaActivity extends Activity {
 				startActivity(intent);
 			}
 			finish();
+		}
 	}
-	
-	
 }

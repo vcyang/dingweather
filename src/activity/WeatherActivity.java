@@ -2,6 +2,7 @@ package activity;
 
 import com.example.dingweather.R;
 
+import service.AutoUpdateService;
 import util.HttpCallBackListener;
 import util.HttpUtils;
 import util.Utility;
@@ -146,5 +147,8 @@ public class WeatherActivity extends Activity implements OnClickListener{
 		tempHighText.setText(pref.getString("tempHigh", ""));
 		publishTimeText.setVisibility(View.VISIBLE);
 		weatherInfoLayout.setVisibility(View.VISIBLE);
+		
+		Intent intent=new Intent(this, AutoUpdateService.class);
+		startService(intent);
 	}
 }
