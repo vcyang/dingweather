@@ -86,8 +86,9 @@ public class ShowWeatherActivity extends Activity implements OnClickListener{
 		}
 	}
 	
+	//此处API不知能不能用，先测试一下
 	public void queryWeatherInfo(final String cityCode){
-		String address="";
+		String address="http://m.weather.com.cn/data/"+cityCode+".html";
 		HttpUtils.sendHttpRequest(address, new HttpCallBackListener(){
 			@Override
 			public void onFinish(String response){

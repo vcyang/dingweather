@@ -38,12 +38,11 @@ public class AutoUpdateService extends Service{
 	}
 	
 	
-	//API已作废，查不到
+	//此处API不知道能不能用，测试一下
 	public void updateWeather(){
 		SharedPreferences pref=PreferenceManager.getDefaultSharedPreferences(this);
 		String countyCode=pref.getString("cityId", "");
-		//以下地址已作废，查不到
-		String address="Http://weather.com.cn/data/cityinfo/"+countyCode+".html";
+		String address="Http://m。weather.com.cn/data/"+countyCode+".html";
 		HttpUtils.sendHttpRequest(address, new HttpCallBackListener(){
 			@Override
 			public void onFinish(String response){

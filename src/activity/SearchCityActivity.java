@@ -121,7 +121,7 @@ public class SearchCityActivity extends Activity implements OnClickListener{
 	
 	//此处的address要传入本机Apache服务器的地址，返回城市及编码数据；
 	public void updateDB(){
-		String address="";
+		String address="";此处缺少API，用于获取城市编码的
 		showProgressDialog();
 		HttpUtils.sendHttpRequest(address, new HttpCallBackListener(){
 			@Override
