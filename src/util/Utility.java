@@ -11,6 +11,7 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
 import android.text.TextUtils;
+import db.AllCities;
 import db.City;
 import db.County;
 import db.DingWeatherDB;
@@ -18,7 +19,27 @@ import db.Province;
 
 public class Utility {
 
-	public synchronized static boolean handleProvinceResponse(DingWeatherDB db, String response){
+	public synchronized static boolean handleAllCitiesResponse(DingWeatherDB db, String response){
+		if(!TextUtils.isEmpty(response)){
+			String[] responseArray=response.split(";");
+			if(responseArray!=null&&responseArray.length>0){
+				for(int i=0;i<responseArray.length;i++){
+					String[] array=responseArray[i].split(":");
+					//将城市名和代码添加进AllCity类的cityName和cityCode里
+					//用db.saveAllCities(AllCity)将数据保存进数据库
+					AllCities cities=new AllCities();
+					cities.setCityName(array[0]);
+					cities.setCityCode(array[1]);
+					db.saveAllCities(cities);
+				}
+				return true;
+			}
+		}
+		return false;
+	}
+	
+	
+/*	public synchronized static boolean handleProvinceResponse(DingWeatherDB db, String response){
 		if(!TextUtils.isEmpty(response)){
 			String[] responseArray=response.split(",");
 			if(responseArray!=null&&responseArray.length>0){
@@ -70,7 +91,7 @@ public class Utility {
 		}
 		return false;
 	}
-	
+	*/
 	public static void handleWeatherResponse(Context context, String response){
 		try{
 			JSONObject jsonObject=new JSONObject(response);

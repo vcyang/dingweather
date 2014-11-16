@@ -34,10 +34,46 @@ public class DingWeatherDB {
 		return dingWeatherDB;
 	}
 	
+	public void saveAllCities(AllCities allCities){
+		if(allCities!=null){
+			ContentValues values=new ContentValues();
+			values.put("city_name", allCities.getCityName());
+			values.put("city_code", allCities.getCityCode());
+			db.insert("AllCities", null, values);
+		}
+	}
+	
+	public List<AllCities> loadAllCities(){
+		List<AllCities> list=new ArrayList<AllCities>();
+		Cursor cursor=db.query("AllCities", null, null, null, null, null, null);
+		if(cursor.moveToFirst()){
+			do{
+				AllCities cities=new AllCities();
+				cities.setCityId(cursor.getInt(cursor.getColumnIndex("id")));
+				cities.setCityName(cursor.getString(cursor.getColumnIndexOrThrow("city_name")));
+				cities.setCityCode(cursor.getString(cursor.getColumnIndex("city_code")));
+				list.add(cities);
+			}while(cursor.moveToNext());
+		}
+		return list;
+	}
+	
+	//增加一个根据输入的城市名称查找数据库信息，然后返回城市名字和城市代码的方法；
+	public AllCities searchCity(String cityName){
+		AllCities city=null;
+		if(cityName!=null){
+			Cursor cursor=db.query("AllCities", null, "city_name=?", new String[]{cityName}, null, null, null);
+			city=new AllCities();
+			city.setCityName(cursor.getString(cursor.getColumnIndex("city_name")));
+			city.setCityCode(cursor.getString(cursor.getColumnIndex("city_code")));
+		}
+		return city;
+	}
+	
 	public void saveProvince(Province province){
 		if(province!=null){
 			ContentValues values=new ContentValues();
-			values.put("id", province.getId());
+	//		values.put("id", province.getId());
 			values.put("province_name", province.getProvinceName());
 			values.put("province_code", province.getProvinceCode());		
 			db.insert("Province", null, values);			

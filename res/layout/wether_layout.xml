@@ -13,7 +13,7 @@
             android:id="@+id/bt_back_to_choose"
             android:layout_width="30dp"
             android:layout_height="30dp"
-            android:layout_centerVertical="true"
+            android:layout_alignParentLeft="true"
             android:layout_marginLeft="10dp"
             android:background="@drawable/home"/>"
         
@@ -30,7 +30,7 @@
             android:layout_width="30dp"
             android:layout_height="30dp"
             android:layout_marginRight="10dp"
-            android:layout_centerVertical="true"
+            android:layout_alignParentRight="true"
             android:background="@drawable/refresh"/>
         
     </RelativeLayout>

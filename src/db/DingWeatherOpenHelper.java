@@ -14,6 +14,8 @@ public class DingWeatherOpenHelper extends SQLiteOpenHelper{
 	
 	public static final String CREATE_COUNTY="create table County(id integer primary key autoincrement, county_name text, county_code text, city_id integer)";
 	
+	public static final String CREATE_ALLCITIES="create table AllCities(id integer primary key autoincrement, city_name text, city_code text)";
+	
 	public DingWeatherOpenHelper(Context context, String name, SQLiteDatabase.CursorFactory factory, int version){
 		super(context, name, factory, version);
 	}
@@ -24,6 +26,7 @@ public class DingWeatherOpenHelper extends SQLiteOpenHelper{
 		db.execSQL(CREATE_PROVINCE);
 		db.execSQL(CREATE_CITY);
 		db.execSQL(CREATE_COUNTY);
+		db.execSQL(CREATE_ALLCITIES);
 	}
 	
 	@Override
