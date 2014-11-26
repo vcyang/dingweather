@@ -11,6 +11,7 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
 import android.text.TextUtils;
+import android.util.Log;
 import db.AllCities;
 import db.DingWeatherDB;
 
@@ -46,6 +47,9 @@ public class Utility {
 			String tempHigh=weatherInfo.getString("temp2");
 			String weatherDescript=weatherInfo.getString("weather");
 			String publishTime=weatherInfo.getString("ptime");
+			//检验是否成功解析
+			Log.d("UtilitySharedPreGet", cityName+":"+cityId+":"+tempLow+":"+tempHigh+":"+weatherDescript+":"+publishTime);
+			
 			saveWeatherInfo(context, cityName, cityId, tempLow, tempHigh, weatherDescript, publishTime);
 		}catch(Exception e){
 			e.printStackTrace();
@@ -53,8 +57,7 @@ public class Utility {
 	}
 	
 	public static void saveWeatherInfo(Context context, String cityName, String cityId, String tempLow, String tempHigh, String weatherDescript, String publishTime){
-		SimpleDateFormat sdf=new SimpleDateFormat("YYYY年M月D日", Locale.CHINA);
-		String date=sdf.format(new Date());
+		SimpleDateFormat sdf=new SimpleDateFormat("yyyy年M月d日", Locale.CHINA);
 		SharedPreferences.Editor editor=PreferenceManager.getDefaultSharedPreferences(context).edit();
 		editor.putBoolean("city_selected", true);
 		editor.putString("cityName", cityName);
@@ -63,7 +66,9 @@ public class Utility {
 		editor.putString("tempHigh", tempHigh);
 		editor.putString("weatherDescript", weatherDescript);
 		editor.putString("publishTime", publishTime);
-		editor.putString("currentDate", date);
+		editor.putString("currentDate", sdf.format(new Date()));
 		editor.commit();
+		//检验是否成功保存到本地SharedPreferences文件
+		Log.d("SaveWeatherInfoend", cityName+":"+cityId+":"+tempLow+":"+tempHigh+":"+weatherDescript+":"+publishTime);
 	}
 }

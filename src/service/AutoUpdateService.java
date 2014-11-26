@@ -41,8 +41,8 @@ public class AutoUpdateService extends Service{
 	//此处API不知道能不能用，测试一下
 	public void updateWeather(){
 		SharedPreferences pref=PreferenceManager.getDefaultSharedPreferences(this);
-		String countyCode=pref.getString("cityId", "");
-		String address="Http://m。weather.com.cn/data/"+countyCode+".html";
+		String cityId=pref.getString("cityId", "");
+		String address="http://www.weather.com.cn/data/cityinfo/"+cityId+".html";
 		HttpUtils.sendHttpRequest(address, new HttpCallBackListener(){
 			@Override
 			public void onFinish(String response){

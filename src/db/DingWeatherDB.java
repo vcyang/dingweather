@@ -7,6 +7,7 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
+import android.util.Log;
 
 public class DingWeatherDB {
 	//此类用来实现对数据库的操作，包括对省、市、区3张表的增删改查、
@@ -34,11 +35,12 @@ public class DingWeatherDB {
 		return dingWeatherDB;
 	}
 	
-	public void saveAllCities(AllCities allCities){
-		if(allCities!=null){
+	
+	public void saveAllCities(AllCities city){
+		if(city!=null){
 			ContentValues values=new ContentValues();
-			values.put("city_name", allCities.getCityName());
-			values.put("city_code", allCities.getCityCode());
+			values.put("city_name", city.getCityName());
+			values.put("city_code", city.getCityCode());
 			db.insert("AllCities", null, values);
 		}
 	}
@@ -50,7 +52,7 @@ public class DingWeatherDB {
 			do{
 				AllCities cities=new AllCities();
 				cities.setCityId(cursor.getInt(cursor.getColumnIndex("id")));
-				cities.setCityName(cursor.getString(cursor.getColumnIndexOrThrow("city_name")));
+				cities.setCityName(cursor.getString(cursor.getColumnIndex("city_name")));
 				cities.setCityCode(cursor.getString(cursor.getColumnIndex("city_code")));
 				list.add(cities);
 			}while(cursor.moveToNext());
@@ -60,13 +62,18 @@ public class DingWeatherDB {
 	
 	//增加一个根据输入的城市名称查找数据库信息，然后返回城市名字和城市代码的方法；
 	public AllCities searchCity(String cityName){
-		AllCities city=null;
-		if(cityName!=null){
+//		AllCities city=null;
+		Log.d("cityNamePass", cityName);
+		if(cityName!=null){			
 			Cursor cursor=db.query("AllCities", null, "city_name=?", new String[]{cityName}, null, null, null);
-			city=new AllCities();
-			city.setCityName(cursor.getString(cursor.getColumnIndex("city_name")));
-			city.setCityCode(cursor.getString(cursor.getColumnIndex("city_code")));
+			if(cursor.moveToFirst()){
+				AllCities city=new AllCities();
+				city.setCityName(cursor.getString(cursor.getColumnIndex("city_name")));
+				city.setCityCode(cursor.getString(cursor.getColumnIndex("city_code")));		
+				return city;
+			}
 		}
-		return city;
+		return null;
 	}
+	
 }

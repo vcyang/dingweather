@@ -1,5 +1,11 @@
 package activity;
 
+import java.io.BufferedReader;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+
 import util.HttpCallBackListener;
 import util.HttpUtils;
 import util.Utility;
@@ -14,6 +20,7 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -56,6 +63,8 @@ public class SearchCityActivity extends Activity implements OnClickListener{
 		requestWindowFeature(Window.FEATURE_NO_TITLE);
 		setContentView(R.layout.search_city);
 		
+		db=DingWeatherDB.getInstance(this);
+		
 		resultLayout=(LinearLayout)findViewById(R.id.ll_result);
 		cityInput=(EditText)findViewById(R.id.et_input_cityname);
 		searchButton=(Button)findViewById(R.id.bt_search_city);
@@ -63,7 +72,6 @@ public class SearchCityActivity extends Activity implements OnClickListener{
 		sureButton=(Button)findViewById(R.id.bt_show_weather);
 		
 		resultLayout.setVisibility(View.INVISIBLE);
-		cityName=cityInput.getText().toString().trim();
 		searchButton.setOnClickListener(this);
 		sureButton.setOnClickListener(this);
 	}
@@ -72,7 +80,17 @@ public class SearchCityActivity extends Activity implements OnClickListener{
 	public void onClick(View v){
 		switch(v.getId()){
 		case R.id.bt_search_city:
-			city=db.searchCity(cityName);
+			cityName=cityInput.getText().toString().trim();
+			if(cityName!=null){
+				city=db.searchCity(cityName);
+			}else{
+				Toast.makeText(this, "地名不能为空", Toast.LENGTH_SHORT).show();
+				return;
+			}			
+			if(city==null){
+				Toast.makeText(this, "不存在此城市", Toast.LENGTH_SHORT).show();
+				return;
+			}
 			resultText.setText(city.getCityName());
 			resultLayout.setVisibility(View.VISIBLE);
 		case R.id.bt_show_weather:
@@ -95,7 +113,29 @@ public class SearchCityActivity extends Activity implements OnClickListener{
 	public boolean onOptionsItemSelected(MenuItem item){
 		switch(item.getItemId()){
 		case R.id.update:
-			updateDB();
+//			createDatabaseTest("weather.txt");
+			showProgressDialog();
+			createDatabase("weather.txt", new HttpCallBackListener(){
+				@Override
+				public void onFinish(String response){
+					boolean result=Utility.handleAllCitiesResponse(db, response);
+					if(result){
+						runOnUiThread(new Runnable(){
+							@Override
+							public void run(){
+								Toast.makeText(SearchCityActivity.this, "加载成功", Toast.LENGTH_SHORT).show();
+								closeProgressDialog();
+							}
+						});
+					}
+				}
+				
+				@Override
+				public void onError(Exception e){
+					Toast.makeText(SearchCityActivity.this, "加载数据库失败！", Toast.LENGTH_SHORT).show();
+					e.printStackTrace();
+				}
+			});
 			break;
 		default:
 			break;
@@ -107,7 +147,7 @@ public class SearchCityActivity extends Activity implements OnClickListener{
 		if(dialog==null){
 			dialog=new ProgressDialog(SearchCityActivity.this);
 			dialog.setTitle("加载数据库");
-			dialog.setMessage("正在加载，很快的。。。");
+			dialog.setMessage("正在加载，请稍等~");
 			dialog.setCanceledOnTouchOutside(false);
 		}
 		dialog.show();
@@ -118,37 +158,47 @@ public class SearchCityActivity extends Activity implements OnClickListener{
 			dialog.dismiss();
 		}
 	}
-	
-	//此处的address要传入本机Apache服务器的地址，返回城市及编码数据；
-	public void updateDB(){
-		String address="";此处缺少API，用于获取城市编码的
-		showProgressDialog();
-		HttpUtils.sendHttpRequest(address, new HttpCallBackListener(){
+		
+	//从assets文件中读取城市编码的信息并加载进数据库
+	public void createDatabase(final String fileName, final HttpCallBackListener listener){
+		new Thread(new Runnable(){
 			@Override
-			public void onFinish(String response){
-				boolean result=Utility.handleAllCitiesResponse(db, response);
-				if(result){
-					runOnUiThread(new Runnable(){
-						@Override
-						public void run(){
-							closeProgressDialog();
-						}
-					});
+			public void run(){
+				InputStream in=null;
+				BufferedReader reader=null;
+				try{
+					in = getResources().getAssets().open(fileName);
+					reader=new BufferedReader(new InputStreamReader(in, "GB2312"));
+					StringBuilder strb=new StringBuilder();
+					String line="";
+					while((line=reader.readLine())!=null){
+						strb.append(line);
+					}
+					if(listener!=null){
+						listener.onFinish(strb.toString());
+					}
+				}catch(IOException e){
+					if(listener!=null){
+						listener.onError(e);
+					}
+				}
+				if(reader!=null){
+					try{
+						reader.close();
+					}catch(Exception e){
+						e.printStackTrace();
+					}
 				}
 			}
-			
-			@Override
-			public void onError(Exception e){
-				runOnUiThread(new Runnable(){
-					@Override
-					public void run(){
-						closeProgressDialog();
-						Toast.makeText(SearchCityActivity.this, "加载失败", Toast.LENGTH_SHORT).show();
-					}
-				});
-			}
-		});				
+		}).start();
+	}	
+	
+	@Override
+	public void onBackPressed(){
+		if(isFromShowWeatherActivity){
+			Intent intent= new Intent(SearchCityActivity.this, ShowWeatherActivity.class);
+			startActivity(intent);
+		}
+		finish();
 	}
-	
-	
 }

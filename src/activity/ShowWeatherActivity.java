@@ -13,6 +13,7 @@ import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.View;
 import android.view.Window;
 import android.view.View.OnClickListener;
@@ -48,11 +49,14 @@ public class ShowWeatherActivity extends Activity implements OnClickListener{
 		tempLowText=(TextView)findViewById(R.id.tv_temp_low);
 		tempHighText=(TextView)findViewById(R.id.tv_temp_high);
 		
-		cityNameText.setText(getIntent().getStringExtra("cityName"));
+		String name=getIntent().getStringExtra("cityName");
+		Log.d("showName", "获得城市名： "+name);
+		
+		cityNameText.setText(name);
 		String cityCode=getIntent().getStringExtra("cityCode");
 		if(!TextUtils.isEmpty(cityCode)){
 			//在同步的过程中隐藏各类控件
-			publishTimeText.setText("同步中。。。");
+			publishTimeText.setText("同步中...");
 			weatherInfoLayout.setVisibility(View.INVISIBLE);
 			queryWeatherInfo(cityCode);
 		}else{
@@ -76,9 +80,9 @@ public class ShowWeatherActivity extends Activity implements OnClickListener{
 		case R.id.bt_refresh:
 			publishTimeText.setText("同步中。。。");
 			SharedPreferences pref=PreferenceManager.getDefaultSharedPreferences(this);
-			String weatherCode=pref.getString("cityId", "");
-			if(!TextUtils.isEmpty(weatherCode)){
-				queryWeatherInfo(weatherCode);
+			String cityCode=pref.getString("cityId", "");
+			if(!TextUtils.isEmpty(cityCode)){
+				queryWeatherInfo(cityCode);
 			}
 			break;
 		default:
@@ -88,7 +92,7 @@ public class ShowWeatherActivity extends Activity implements OnClickListener{
 	
 	//此处API不知能不能用，先测试一下
 	public void queryWeatherInfo(final String cityCode){
-		String address="http://m.weather.com.cn/data/"+cityCode+".html";
+		String address="http://www.weather.com.cn/data/cityinfo/"+cityCode+".html";
 		HttpUtils.sendHttpRequest(address, new HttpCallBackListener(){
 			@Override
 			public void onFinish(String response){
@@ -118,16 +122,26 @@ public class ShowWeatherActivity extends Activity implements OnClickListener{
 	public void showWeather(){
 		//从已保存的sharedPreference文件中提取数据并设置到控件上显示
 		SharedPreferences pref=PreferenceManager.getDefaultSharedPreferences(this);
-		cityNameText.setText(pref.getString("cityName", ""));
-		publishTimeText.setText("今天"+pref.getString("publishTime", "")+"发布");
-		currentDateText.setText(pref.getString("currentDate", ""));
-		weatherInfo.setText(pref.getString("weatherDescript", ""));
-		tempLowText.setText(pref.getString("tempLow", ""));
-		tempHighText.setText(pref.getString("tempHigh", ""));
+		//检验是否能获取本地SharedPreferences文件数据
+		String cityName=pref.getString("cityName", "");
+		String publishTime=pref.getString("publishTime", "");
+		String currentDate=pref.getString("currentDate", "");
+		String weatherDescript=pref.getString("weatherDescript", "");
+		String tempLow=pref.getString("tempLow", "");
+		String tempHigh=pref.getString("tempHigh", "");
+		Log.d("UtilitySharedPreGetTest", cityName+":"+tempLow+":"+tempHigh+":"+weatherDescript+":"+publishTime);
+		
+		cityNameText.setText(cityName);
+		publishTimeText.setText("今天"+publishTime+"发布");
+		currentDateText.setText(currentDate);
+		weatherInfo.setText(weatherDescript);
+		tempLowText.setText(tempLow);
+		tempHighText.setText(tempHigh);
+		
 		publishTimeText.setVisibility(View.VISIBLE);
 		weatherInfoLayout.setVisibility(View.VISIBLE);
 		Intent intent=new Intent(this, AutoUpdateService.class);
 		startService(intent);
 	}
-
+	
 }
